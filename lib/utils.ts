@@ -23,10 +23,12 @@ export function formatDateTime(dateStr: string): string {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
+        timeZone: 'Asia/Tashkent',
     });
     const timePart = date.toLocaleTimeString('uz-UZ', {
         hour: '2-digit',
         minute: '2-digit',
+        timeZone: 'Asia/Tashkent',
     });
     return `${datePart}, ${timePart}`;
 }
