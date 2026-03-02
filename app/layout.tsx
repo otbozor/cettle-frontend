@@ -34,11 +34,20 @@ export const metadata: Metadata = {
         title: "Otbozor - O'zbekiston Ot Savdo Platformasi",
         description:
             "O'zbekistondagi eng katta ot savdo bozori. Ko'pkari, sport, sayr, ishchi va naslchilik otlarini tez va oson toping yoki soting.",
+        images: [
+            {
+                url: '/horse.jpg',
+                width: 1200,
+                height: 630,
+                alt: "Otbozor - O'zbekiston Ot Savdo Platformasi",
+            },
+        ],
     },
     twitter: {
         card: 'summary_large_image',
         title: 'Otbozor',
         description: "O'zbekistondagi eng katta ot savdo bozori",
+        images: ['/horse.jpg'],
     },
     robots: {
         index: true,
