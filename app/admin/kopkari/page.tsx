@@ -7,6 +7,7 @@ import { getRegionsWithDistricts, Region } from '@/lib/api';
 import { Plus, Edit, Trash2, Loader2, X, Save, Calendar, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import { CustomSelect } from '@/components/ui/CustomSelect';
+import RichTextEditor from '@/components/ui/RichTextEditor';
 
 interface Event {
     id: string;
@@ -14,7 +15,7 @@ interface Event {
     slug: string;
     startsAt: string;
     organizerName: string;
-    prizePool?: number;
+    prizePool?: string;
     status: string;
     region: { nameUz: string };
     district?: { nameUz: string };
@@ -140,7 +141,7 @@ export default function AdminKopkariPage() {
         try {
             const payload: any = {
                 ...form,
-                prizePool: form.prizePool ? Number(form.prizePool) : undefined,
+                prizePool: form.prizePool || undefined,
                 endsAt: form.endsAt || undefined,
                 districtId: form.districtId || undefined,
                 addressText: form.addressText || undefined,
@@ -299,16 +300,18 @@ export default function AdminKopkariPage() {
                                         placeholder="username (@ siz)" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Sovrin jamg'armasi (so'm)</label>
-                                    <input type="number" name="prizePool" value={form.prizePool} onChange={handleChange}
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Sovrin jamg'armasi</label>
+                                    <input type="text" name="prizePool" value={form.prizePool} onChange={handleChange}
                                         className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                                        placeholder="0" />
+                                        placeholder="Masalan: 5 000 000 so'm yoki Yo'q" />
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Tavsif</label>
-                                    <textarea name="description" value={form.description} onChange={handleChange} rows={3}
-                                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
-                                        placeholder="Tadbir haqida batafsil..." />
+                                    <RichTextEditor
+                                        value={form.description}
+                                        onChange={(val) => setForm(prev => ({ ...prev, description: val }))}
+                                        placeholder="Tadbir haqida batafsil..."
+                                    />
                                 </div>
                                 <div className="md:col-span-2">
                                     <label className="block text-sm font-medium text-slate-700 mb-1">Qoidalar</label>
