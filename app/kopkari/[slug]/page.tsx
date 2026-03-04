@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
 import { getEvent } from '@/lib/api';
-import { formatDate, formatPrice } from '@/lib/utils';
-import { MapPin, Calendar, Trophy, User, Phone, Navigation, ArrowLeft } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+import { MapPin, Calendar, Trophy, User, Phone, Navigation, ArrowLeft, Eye } from 'lucide-react';
 import { HorseshoeIcon } from '@/components/icons/HorseIcons';
 import ShareButton from './ShareButton';
 import Link from 'next/link';
+import { EventViewTracker } from '@/components/kopkari/EventViewTracker';
 
 export default async function EventDetailPage({ params }: { params: { slug: string } }) {
     let event;
@@ -17,6 +18,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
 
     return (
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <EventViewTracker slug={params.slug} />
             <div className="mb-4">
                 <Link href="/kopkari" className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200">
                     <ArrowLeft className="w-4 h-4" />
@@ -40,6 +42,10 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                                 <MapPin className="w-5 h-5 text-amber-400" />
                                 {event.region.nameUz}{event.district?.nameUz ? `, ${event.district.nameUz}` : ''}
                             </span>
+                            <span className="flex items-center gap-1.5">
+                                <Eye className="w-5 h-5 text-amber-400" />
+                                {event.viewCount ?? 0}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -48,9 +54,21 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                     <div className="lg:col-span-2 space-y-8">
                         <div>
                             <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-3">Tadbir haqida</h2>
-                            <p className="text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
-                                {event.description || 'Tavsif mavjud emas'}
-                            </p>
+                            <div
+                                className="text-slate-600 dark:text-slate-300 leading-relaxed
+                                    [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mt-6 [&_h2]:mb-3 [&_h2]:text-slate-900 dark:[&_h2]:text-slate-100
+                                    [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-4 [&_h3]:mb-2 [&_h3]:text-slate-900 dark:[&_h3]:text-slate-100
+                                    [&_p]:mb-3
+                                    [&_strong]:font-bold
+                                    [&_em]:italic
+                                    [&_u]:underline
+                                    [&_s]:line-through
+                                    [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-3
+                                    [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-3
+                                    [&_li]:mb-1
+                                    [&_blockquote]:border-l-4 [&_blockquote]:border-amber-300 [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:text-slate-500 [&_blockquote]:my-3"
+                                dangerouslySetInnerHTML={{ __html: event.description || 'Tavsif mavjud emas' }}
+                            />
                         </div>
 
                         {event.rules && (
@@ -99,7 +117,7 @@ export default async function EventDetailPage({ params }: { params: { slug: stri
                                     </div>
                                     <span className="font-medium text-white/90">Umumiy sovrin jamg'armasi</span>
                                 </div>
-                                <p className="text-3xl font-bold">{formatPrice(event.prizePool)}</p>
+                                <p className="text-3xl font-bold">{event.prizePool}</p>
                             </div>
                         )}
 

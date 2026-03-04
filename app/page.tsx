@@ -238,7 +238,7 @@ export default async function HomePage() {
                       </div>
                       {event.prizePool && (
                         <span className="badge bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">
-                          {formatPrice(event.prizePool, "UZS")}
+                          {event.prizePool}
                         </span>
                       )}
                     </div>

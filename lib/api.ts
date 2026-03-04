@@ -266,8 +266,9 @@ export interface KopkariEvent {
     mapUrl?: string;
     organizerName: string;
     contactTelegram?: string;
-    prizePool?: number;
+    prizePool?: string;
     rules?: string;
+    viewCount?: number;
 }
 
 export async function getUpcomingEvents(limit = 6): Promise<KopkariEvent[]> {

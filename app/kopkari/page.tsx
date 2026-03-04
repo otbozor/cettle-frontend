@@ -1,4 +1,4 @@
-import { formatDate, formatPrice } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import { KopkariEvent } from '@/lib/api';
 import { MapPin, Calendar, Trophy, ChevronRight, Plus } from 'lucide-react';
 import { HorseshoeIcon } from '@/components/icons/HorseIcons';
@@ -144,7 +144,7 @@ export default async function KopkariPage({
                                         {event.prizePool && (
                                             <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold rounded-full">
                                                 <Trophy className="w-3 h-3" />
-                                                {formatPrice(event.prizePool)}
+                                                {event.prizePool}
                                             </span>
                                         )}
                                     </div>
