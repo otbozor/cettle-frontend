@@ -14,7 +14,7 @@ function LoginContent() {
   const [codeArr, setCodeArr] = useState<string[]>(Array(CODE_LEN).fill(""));
   const [error, setError] = useState("");
   const [botLink, setBotLink] = useState("");
-  const [botUsername, setBotUsername] = useState("otbozor_bot");
+  const [botUsername, setBotUsername] = useState("muruvvat1_bot");
   const [initLoading, setInitLoading] = useState(true);
 
   const searchParams = useSearchParams();
@@ -157,11 +157,10 @@ function LoginContent() {
           href={botLink || `https://t.me/${botUsername}`}
           target="_blank"
           rel="noopener noreferrer"
-          className={`w-full h-12 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all mb-8 ${
-            initLoading
+          className={`w-full h-12 flex items-center justify-center gap-2.5 rounded-xl font-semibold text-sm transition-all mb-8 ${initLoading
               ? "bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-wait pointer-events-none"
               : "bg-[#2AABEE] hover:bg-[#229ED9] text-white"
-          }`}
+            }`}
         >
           {initLoading ? (
             <>
@@ -171,7 +170,7 @@ function LoginContent() {
           ) : (
             <>
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z"/>
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12L7.26 13.605l-2.979-.929c-.648-.203-.66-.648.136-.961l11.647-4.49c.538-.194 1.01.131.83.996z" />
               </svg>
               Parol olish
             </>
