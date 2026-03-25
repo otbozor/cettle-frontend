@@ -182,7 +182,7 @@ function CreateListingPageContent() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 max-w-3xl">
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-slate-900 mb-2">E'lon joylash</h1>
-                <p className="text-slate-500">Otingizni sotish uchun ma'lumotlarni to'ldiring</p>
+                <p className="text-slate-500">Molingizni sotish uchun ma'lumotlarni to'ldiring</p>
             </div>
 
             {/* Error Alert */}
@@ -235,7 +235,7 @@ function CreateListingPageContent() {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            placeholder="Masalan: Qorabayir oti sotiladi"
+                            placeholder="Masalan: Qorabosh mol sotiladi"
                             required
                         />
 
@@ -248,12 +248,11 @@ function CreateListingPageContent() {
                                     onChange={handleChange}
                                     placeholder="Tanlang"
                                     options={[
-                                        { label: "Ko'pkari", value: 'KOPKARI' },
-                                        { label: 'Sport', value: 'SPORT' },
-                                        { label: 'Sayr', value: 'SAYR' },
-                                        { label: 'Ishchi', value: 'ISHCHI' },
-                                        { label: 'Naslchilik', value: 'NASLCHILIK' },
                                         { label: "Go'sht uchun", value: 'GOSHT' },
+                                        { label: 'Sut uchun', value: 'SUT' },
+                                        { label: 'Naslchilik', value: 'NASLCHILIK' },
+                                        { label: 'Ishchi', value: 'ISHCHI' },
+                                        { label: 'Omixta', value: 'OMIXTA' },
                                     ]}
                                 />
                             </div>
@@ -279,9 +278,8 @@ function CreateListingPageContent() {
                                     onChange={handleChange}
                                     placeholder="Tanlang"
                                     options={[
-                                        { label: 'Aygir', value: 'AYGIR' },
-                                        { label: 'Biya', value: 'BIYA' },
-                                        { label: 'Axta', value: 'AXTA' },
+                                        { label: "Ho'kiz (erkak)", value: 'HOKIZ' },
+                                        { label: "Sigir (urg'ochi)", value: 'SIGIR' },
                                     ]}
                                 />
                             </div>
@@ -302,7 +300,7 @@ function CreateListingPageContent() {
                                 name="color"
                                 value={formData.color}
                                 onChange={handleChange}
-                                placeholder="Masalan: Qora, Jiyron"
+                                placeholder="Masalan: Qora, Qo'ng'ir, Oq"
                                 required
                             />
                         </div>
@@ -314,7 +312,7 @@ function CreateListingPageContent() {
                                 value={formData.description}
                                 onChange={handleChange}
                                 className="input h-32 resize-none"
-                                placeholder="Ot haqida batafsil ma'lumot..."
+                                placeholder="Mol haqida batafsil ma'lumot..."
                                 required
                             />
                         </div>
@@ -469,7 +467,7 @@ function CreateListingPageContent() {
 
                         <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4 text-sm text-amber-800 dark:text-amber-300">
                             E'lonni joylash orqali siz{' '}
-                            <a href="https://www.otbozor.uz/terms" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
+                            <a href="/terms" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:text-amber-900 dark:hover:text-amber-200">
                                 foydalanish shartlariga
                             </a>{' '}
                             rozilik bildirasiz. E'lon tekshiruvdan o'tgach avtomatik e'lon qilinadi.

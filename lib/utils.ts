@@ -1,4 +1,4 @@
-export function formatPrice(price: number, currency: 'UZS' | 'USD' = 'UZS'): string {
+export function formatPrice(price: number, currency?: 'UZS' | 'USD' | string): string {
     if (currency === 'USD') {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',

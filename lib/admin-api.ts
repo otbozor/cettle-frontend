@@ -72,6 +72,38 @@ export async function rejectListing(listingId: string, reason: string): Promise<
     });
 }
 
+// Sheep Listings (admin)
+export async function getAdminSheepListings(options?: {
+    status?: string;
+    regionId?: string;
+    page?: number;
+    limit?: number;
+}): Promise<any> {
+    return apiFetch('/api/admin/sheep-listings', {
+        params: {
+            status: options?.status,
+            regionId: options?.regionId,
+            page: options?.page,
+            limit: options?.limit,
+        } as any,
+    });
+}
+
+export async function approveSheepListing(listingId: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/sheep-listings/${listingId}/approve`, { method: 'POST' });
+}
+
+export async function rejectSheepListing(listingId: string, reason: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/sheep-listings/${listingId}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ reason }),
+    });
+}
+
+export async function deleteAdminSheepListing(listingId: string): Promise<AuthResponse<any>> {
+    return apiFetch(`/api/admin/sheep-listings/${listingId}`, { method: 'DELETE' });
+}
+
 // Get Users
 export async function getUsers(page = 1, limit = 20, status?: string): Promise<AuthResponse<any>> {
     return apiFetch('/api/admin/users', {

@@ -141,12 +141,11 @@ export function ListingFilters({ onApply, hideTitle }: Props) {
                     placeholder="Barchasi"
                     options={[
                         { value: '', label: 'Barchasi' },
-                        { value: 'KOPKARI', label: "Ko'pkari" },
-                        { value: 'SPORT', label: 'Sport' },
-                        { value: 'SAYR', label: 'Sayr' },
-                        { value: 'ISHCHI', label: 'Ishchi' },
-                        { value: 'NASLCHILIK', label: 'Naslchilik' },
                         { value: 'GOSHT', label: "Go'sht uchun" },
+                        { value: 'SUT', label: 'Sut uchun' },
+                        { value: 'NASLCHILIK', label: 'Naslchilik' },
+                        { value: 'ISHCHI', label: 'Ishchi' },
+                        { value: 'OMIXTA', label: 'Omixta' },
                     ]}
                 />
             </div>
@@ -197,7 +196,7 @@ export function ListingFilters({ onApply, hideTitle }: Props) {
             <div>
                 <label className="label">Jinsi</label>
                 <div className="flex gap-2">
-                    {['AYGIR', 'BIYA', 'AXTA'].map((g) => (
+                    {['HOKIZ', 'SIGIR'].map((g) => (
                         <label key={g} className={`
                 flex-1 text-center py-2 px-1 rounded-lg border text-sm cursor-pointer transition-colors
                 ${filters.gender === g
@@ -212,7 +211,7 @@ export function ListingFilters({ onApply, hideTitle }: Props) {
                                 onChange={handleChange}
                                 className="hidden"
                             />
-                            {g === 'AYGIR' ? 'Aygir' : g === 'BIYA' ? 'Biya' : 'Axta'}
+                            {g === 'HOKIZ' ? "Ho'kiz" : 'Sigir'}
                         </label>
                     ))}
                 </div>

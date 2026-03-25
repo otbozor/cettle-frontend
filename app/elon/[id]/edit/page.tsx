@@ -323,11 +323,11 @@ function EditListingPageContent() {
                                     placeholder="Tanlang"
                                     disabled={!canEdit}
                                     options={[
-                                        { label: "Ko'pkari", value: 'KOPKARI' },
-                                        { label: 'Sport', value: 'SPORT' },
-                                        { label: 'Sayr', value: 'SAYR' },
+                                        { label: "Go'sht uchun", value: 'GOSHT' },
+                                        { label: 'Sut uchun', value: 'SUT' },
+                                        { label: 'Omixta', value: 'OMIXTA' },
                                         { label: 'Ishchi', value: 'ISHCHI' },
-                                        { label: 'Naslchilik', value: 'NASLCHILIK' },
+                                        { label: 'Omixta', value: 'OMIXTA' },
                                         { label: "Go'sht uchun", value: 'GOSHT' },
                                     ]}
                                 />
@@ -356,9 +356,8 @@ function EditListingPageContent() {
                                     placeholder="Tanlang"
                                     disabled={!canEdit}
                                     options={[
-                                        { label: 'Aygir', value: 'AYGIR' },
-                                        { label: 'Biya', value: 'BIYA' },
-                                        { label: 'Axta', value: 'AXTA' },
+                                        { label: "Ho'kiz (erkak)", value: 'HOKIZ' },
+                                        { label: "Sigir (urg'ochi)", value: 'SIGIR' },
                                     ]}
                                 />
                             </div>
@@ -392,7 +391,7 @@ function EditListingPageContent() {
                                 value={formData.description}
                                 onChange={handleChange}
                                 className="input h-32 resize-none"
-                                placeholder="Ot haqida batafsil ma'lumot..."
+                                placeholder="Mol haqida batafsil ma'lumot..."
                                 disabled={!canEdit}
                             />
                         </div>

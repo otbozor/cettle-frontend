@@ -15,7 +15,7 @@ interface FileUploadProps {
 export function FileUpload({
     label = "Rasmlar yuklash",
     maxFiles = 5,
-    accept = "image/*,video/*",
+    accept = "image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/webm",
     onFilesChange,
     initialFiles = []
 }: FileUploadProps) {

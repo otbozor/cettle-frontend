@@ -10,13 +10,13 @@ export function Footer() {
                     {/* Brand + Contact */}
                     <div className="md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 mb-4">
-                            <Image src="/logo.png" alt="Otbozor" width={36} height={36} className="object-contain" />
+                            <Image src="/logo.png" alt="Chorvabozor" width={36} height={36} className="object-contain" />
                             <span className="text-lg font-bold text-slate-900 dark:text-white">
                                 Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
                             </span>
                         </Link>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-                            O'zbekistondagi eng ishonchli ot savdo platformasi.
+                            O'zbekistondagi eng ishonchli chorva savdo platformasi.
                         </p>
 
                         {/* Contact info */}
@@ -42,17 +42,17 @@ export function Footer() {
                         <ul className="space-y-3 text-sm">
                             <li>
                                 <Link href="/bozor" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                    Ot bozori
+                                    Mol bozori
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/qoy-bozor" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                                    Qo&apos;y & Echki
                                 </Link>
                             </li>
                             <li>
                                 <Link href="/mahsulotlar" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
                                     Mahsulotlar
-                                </Link>
-                            </li>
-                            <li>
-                                <Link href="/kopkari" className="text-slate-600 dark:text-slate-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
-                                    Ko'pkari
                                 </Link>
                             </li>
                             <li>
@@ -139,7 +139,7 @@ export function Footer() {
 
                 {/* Bottom bar */}
                 <div className="mt-10 pt-6 border-t border-slate-200 dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
-                    <p>© {new Date().getFullYear()} Otbozor. Barcha huquqlar himoyalangan.</p>
+                    <p>© {new Date().getFullYear()} Chorvabozor. Barcha huquqlar himoyalangan.</p>
                     <div className="flex gap-5">
                         <Link href="/terms" className="hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
                             Foydalanish shartlari

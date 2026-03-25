@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Trophy, Menu, X, DollarSign } from 'lucide-react';
+import { LayoutDashboard, List, Users, FileText, Settings, LogOut, Loader2, Package, Menu, X, DollarSign } from 'lucide-react';
 import { logout } from '@/lib/api';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useEffect, useState } from 'react';
@@ -10,9 +10,9 @@ import { useEffect, useState } from 'react';
 const sidebarItems = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
     { name: 'E\'lonlar', href: '/admin/listings', icon: List },
+    { name: "Qo'y & Echki", href: '/admin/qoy-elon', icon: List },
     { name: 'Mahsulotlar', href: '/admin/mahsulotlar', icon: Package },
     { name: 'Foydalanuvchilar', href: '/admin/users', icon: Users },
-    { name: "Ko'pkari", href: '/admin/kopkari', icon: Trophy },
     { name: 'Blog', href: '/admin/blog', icon: FileText },
     { name: 'Moliya', href: '/admin/moliya', icon: DollarSign },
     { name: 'Sozlamalar', href: '/admin/settings', icon: Settings },

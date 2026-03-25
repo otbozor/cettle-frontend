@@ -161,7 +161,7 @@ function CreateProductForm() {
                         value={form.title}
                         onChange={handleChange}
                         className="input"
-                        placeholder="Masalan: Egar, Em-xashak, Jilov..."
+                        placeholder="Masalan: Ozuqa, Dori, Sutchilik jihozi..."
                         required
                     />
                 </div>

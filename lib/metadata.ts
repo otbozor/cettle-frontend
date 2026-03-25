@@ -33,7 +33,7 @@ export function constructMetadata({
                 },
             ],
             type: 'website',
-            siteName: 'Otbozor',
+            siteName: 'Chorvabozor',
         },
         twitter: {
             card: 'summary_large_image',

@@ -51,7 +51,7 @@ interface Product {
     media: Array<{ url: string; thumbUrl?: string }>;
 }
 
-type MainTab = 'horses' | 'products';
+type MainTab = 'horses' | 'sheep' | 'products';
 type StatusFilter = 'active' | 'pending' | 'unpaid' | 'inactive' | 'rejected' | 'expired';
 type ProductFilter = 'PUBLISHED' | 'DRAFT' | 'ARCHIVED' | 'UNPAID';
 
@@ -129,34 +129,40 @@ function MyListingsPageContent() {
     const [statusFilter, setStatusFilter] = useState<StatusFilter>('active');
     const [productFilter, setProductFilter] = useState<ProductFilter>('PUBLISHED');
     const [listings, setListings] = useState<Listing[]>([]);
+    const [sheepListings, setSheepListings] = useState<Listing[]>([]);
     const [products, setProducts] = useState<Product[]>([]);
     const [loadingListings, setLoadingListings] = useState(true);
+    const [loadingSheep, setLoadingSheep] = useState(true);
     const [loadingProducts, setLoadingProducts] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const [showSuccessBanner, setShowSuccessBanner] = useState(false);
-    const [deactivateListingId, setDeactivateListingId] = useState<string | null>(null);
+    const [deactivateTarget, setDeactivateTarget] = useState<{ id: string; type: 'horses' | 'sheep' } | null>(null);
+    const deactivateListingId = deactivateTarget?.id ?? null;
     const [reactivatingId, setReactivatingId] = useState<string | null>(null);
     const [reactivationModal, setReactivationModal] = useState<{ listingId: string; price: number } | null>(null);
     const [loadingPrice, setLoadingPrice] = useState(false);
 
     const filteredListings = useMemo(() => filterListings(listings, statusFilter), [listings, statusFilter]);
+    const filteredSheepListings = useMemo(() => filterListings(sheepListings, statusFilter), [sheepListings, statusFilter]);
     const statusCounts = useMemo(() => getStatusCounts(listings), [listings]);
+    const sheepStatusCounts = useMemo(() => getStatusCounts(sheepListings), [sheepListings]);
     const filteredProducts = useMemo(() => filterProducts(products, productFilter), [products, productFilter]);
     const productStatusCounts = useMemo(() => getProductStatusCounts(products), [products]);
 
-    const currentItems = mainTab === 'horses' ? filteredListings : filteredProducts;
+    const currentItems = mainTab === 'horses' ? filteredListings : mainTab === 'sheep' ? filteredSheepListings : filteredProducts;
     const totalPages = Math.ceil(currentItems.length / ITEMS_PER_PAGE);
     const paginatedItems = useMemo(() => {
         const start = (currentPage - 1) * ITEMS_PER_PAGE;
         return currentItems.slice(start, start + ITEMS_PER_PAGE);
     }, [currentItems, currentPage]);
 
-    const loading = mainTab === 'horses' ? loadingListings : loadingProducts;
+    const loading = mainTab === 'horses' ? loadingListings : mainTab === 'sheep' ? loadingSheep : loadingProducts;
 
     useEffect(() => {
         if (user) {
             fetchListings();
+            fetchSheepListings();
             fetchProducts();
         }
     }, [user]);
@@ -197,6 +203,20 @@ function MyListingsPageContent() {
             console.error('Failed to fetch listings:', e);
         } finally {
             setLoadingListings(false);
+        }
+    };
+
+    const fetchSheepListings = async () => {
+        try {
+            const res = await fetch(`${apiBase}/api/my/sheep-listings`, {
+                credentials: 'include',
+            });
+            const data = await res.json();
+            setSheepListings(Array.isArray(data) ? data : (data?.data ?? []));
+        } catch (e) {
+            console.error('Failed to fetch sheep listings:', e);
+        } finally {
+            setLoadingSheep(false);
         }
     };
 
@@ -270,15 +290,20 @@ function MyListingsPageContent() {
     };
 
     const handleDeactivate = async (listingId: string, saleSource: 'OTBOZOR' | 'OTHER') => {
+        const isSheep = deactivateTarget?.type === 'sheep';
+        const endpoint = isSheep
+            ? `${apiBase}/api/my/sheep-listings/${listingId}`
+            : `${apiBase}/api/my/listings/${listingId}`;
         try {
-            await fetch(`${apiBase}/api/my/listings/${listingId}`, {
+            await fetch(endpoint, {
                 method: 'DELETE',
                 credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ saleSource }),
             });
-            setDeactivateListingId(null);
-            await fetchListings();
+            setDeactivateTarget(null);
+            if (isSheep) await fetchSheepListings();
+            else await fetchListings();
         } catch (e) {
             console.error('Failed to deactivate:', e);
         }
@@ -369,7 +394,9 @@ function MyListingsPageContent() {
         );
     }
 
-    const deactivateListing = listings.find(l => l.id === deactivateListingId);
+    const deactivateListing = deactivateTarget?.type === 'sheep'
+        ? sheepListings.find(l => l.id === deactivateListingId)
+        : listings.find(l => l.id === deactivateListingId);
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 py-6 sm:py-8">
@@ -442,6 +469,10 @@ function MyListingsPageContent() {
                         <Link href="/elon/yaratish" className="btn btn-primary w-full sm:w-auto justify-center">
                             <Plus className="w-5 h-5" /> Ot e&apos;loni yaratish
                         </Link>
+                    ) : mainTab === 'sheep' ? (
+                        <Link href="/qoy-elon/yaratish" className="btn btn-primary w-full sm:w-auto justify-center">
+                            <Plus className="w-5 h-5" /> Qo&apos;y/Echki e&apos;loni yaratish
+                        </Link>
                     ) : (
                         <Link href="/mahsulot/yaratish" className="btn btn-primary w-full sm:w-auto justify-center">
                             <Plus className="w-5 h-5" /> Mahsulot yaratish
@@ -460,6 +491,14 @@ function MyListingsPageContent() {
                         <span className={`px-1.5 py-0.5 rounded-full text-xs ${mainTab === 'horses' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'}`}>{listings.length}</span>
                     </button>
                     <button
+                        onClick={() => setMainTab('sheep')}
+                        className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${mainTab === 'sheep' ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
+                    >
+                        🐑
+                        Qo&apos;y/Echki
+                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${mainTab === 'sheep' ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'}`}>{sheepListings.length}</span>
+                    </button>
+                    <button
                         onClick={() => setMainTab('products')}
                         className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${mainTab === 'products' ? 'bg-primary-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700'}`}
                     >
@@ -475,6 +514,35 @@ function MyListingsPageContent() {
                         {STATUS_TABS.map(tab => {
                             const Icon = tab.icon;
                             const count = statusCounts[tab.key];
+                            const isActive = statusFilter === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setStatusFilter(tab.key)}
+                                    className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${isActive
+                                        ? 'bg-primary-50 dark:bg-primary-900/20 border-primary-200 dark:border-primary-800 text-primary-700 dark:text-primary-300'
+                                        : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700'
+                                        }`}
+                                >
+                                    <Icon className="w-3.5 h-3.5" />
+                                    {tab.label}
+                                    {count > 0 && (
+                                        <span className={`px-1.5 py-0.5 rounded-full text-xs ${isActive ? 'bg-primary-200 dark:bg-primary-800 text-primary-800 dark:text-primary-200' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'}`}>
+                                            {count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
+
+                {/* Status Sub-tabs (sheep) */}
+                {mainTab === 'sheep' && (
+                    <div className="flex gap-1 mb-6 overflow-x-auto pb-1 -mx-1 px-1">
+                        {STATUS_TABS.map(tab => {
+                            const Icon = tab.icon;
+                            const count = sheepStatusCounts[tab.key];
                             const isActive = statusFilter === tab.key;
                             return (
                                 <button
@@ -598,7 +666,7 @@ function MyListingsPageContent() {
                                                         {/* Nofaol qilish — APPROVED, EXPIRED, DRAFT */}
                                                         {(listing.status === 'APPROVED' || listing.status === 'EXPIRED' || listing.status === 'DRAFT') && (
                                                             <button
-                                                                onClick={() => { setDeactivateListingId(listing.id); setOpenMenuId(null); }}
+                                                                onClick={() => { setDeactivateTarget({ id: listing.id, type: 'horses' }); setOpenMenuId(null); }}
                                                                 className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
                                                             >
                                                                 <Archive className="w-4 h-4" />
@@ -688,7 +756,7 @@ function MyListingsPageContent() {
                                                     <>
                                                         <div className="flex gap-2">
                                                             <button
-                                                                onClick={() => setDeactivateListingId(listing.id)}
+                                                                onClick={() => setDeactivateTarget({ id: listing.id, type: 'horses' })}
                                                                 className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                                                             >
                                                                 <CheckCircle className="w-3.5 h-3.5" />
@@ -716,7 +784,7 @@ function MyListingsPageContent() {
                                                 {listing.status === 'PENDING' && (
                                                     <div className="flex gap-2">
                                                         <button
-                                                            onClick={() => setDeactivateListingId(listing.id)}
+                                                            onClick={() => setDeactivateTarget({ id: listing.id, type: 'horses' })}
                                                             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                                                         >
                                                             <CheckCircle className="w-3.5 h-3.5" />
@@ -860,6 +928,332 @@ function MyListingsPageContent() {
                             )}
                         </div>
                     )
+                ) : mainTab === 'sheep' ? (
+                    /* ── SHEEP CONTENT ── */
+                    filteredSheepListings.length > 0 ? (
+                        <>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                {(paginatedItems as Listing[]).map((listing) => (
+                                    <div key={listing.id} className="bg-white dark:bg-slate-800 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700 hover:shadow-md transition-shadow flex flex-col">
+
+                                        {/* Image */}
+                                        <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-700 flex-shrink-0">
+                                            {listing.media[0] ? (
+                                                <Image
+                                                    src={listing.media[0].thumbUrl || listing.media[0].url}
+                                                    alt={listing.title}
+                                                    fill
+                                                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                                                    className="object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600 text-4xl">🐑</div>
+                                            )}
+
+                                            {/* Status badge */}
+                                            <div className="absolute top-2 left-2">
+                                                {getListingStatusBadge(listing)}
+                                            </div>
+
+                                            {/* 3-dot menu */}
+                                            {listing.status !== 'PENDING' && (
+                                                <div className="absolute top-2 right-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setOpenMenuId(openMenuId === listing.id ? null : listing.id);
+                                                        }}
+                                                        className="w-8 h-8 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center text-white transition-colors"
+                                                    >
+                                                        <MoreVertical className="w-4 h-4" />
+                                                    </button>
+
+                                                    {openMenuId === listing.id && (
+                                                        <div
+                                                            onClick={(e) => e.stopPropagation()}
+                                                            className="absolute right-0 top-10 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden py-1"
+                                                        >
+                                                            {listing.status === 'APPROVED' && (
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        const url = `${window.location.origin}/qoy/${listing.slug}`;
+                                                                        try {
+                                                                            if (navigator.share) await navigator.share({ title: listing.title, url });
+                                                                            else await navigator.clipboard.writeText(url);
+                                                                        } catch { }
+                                                                        setOpenMenuId(null);
+                                                                    }}
+                                                                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                                                >
+                                                                    <Share2 className="w-4 h-4" />
+                                                                    Ulashish
+                                                                </button>
+                                                            )}
+                                                            {(listing.status === 'DRAFT' || listing.status === 'REJECTED') && (
+                                                                <Link
+                                                                    href={`/qoy-elon/${listing.id}/edit`}
+                                                                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                                                    onClick={() => setOpenMenuId(null)}
+                                                                >
+                                                                    <Edit className="w-4 h-4" />
+                                                                    Tahrirlash
+                                                                </Link>
+                                                            )}
+                                                            {(listing.status === 'APPROVED' || listing.status === 'EXPIRED' || listing.status === 'DRAFT') && (
+                                                                <button
+                                                                    onClick={() => { setDeactivateTarget({ id: listing.id, type: 'sheep' }); setOpenMenuId(null); }}
+                                                                    className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
+                                                                >
+                                                                    <Archive className="w-4 h-4" />
+                                                                    Nofaol qilish
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Card body */}
+                                        <div className="p-3 flex flex-col flex-1">
+                                            {/* Dates */}
+                                            {listing.status === 'APPROVED' && listing.publishedAt ? (
+                                                <div className="flex items-center justify-between text-xs mb-1.5 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-800 rounded-lg px-2 py-1">
+                                                    <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
+                                                        <CheckCircle className="w-3 h-3" />
+                                                        {formatDate(listing.publishedAt)}
+                                                    </span>
+                                                    {listing.expiresAt && (
+                                                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                                                            <Clock className="w-3 h-3" />
+                                                            {formatDate(listing.expiresAt)} gacha
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center justify-between text-xs text-slate-400 dark:text-slate-500 mb-1.5">
+                                                    <span>{listing.createdAt ? formatDate(listing.createdAt) : ''}</span>
+                                                    {listing.expiresAt && listing.status === 'EXPIRED' && (
+                                                        <span className="text-amber-500 dark:text-amber-400">
+                                                            tugdi: {formatDate(listing.expiresAt)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Title */}
+                                            <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1 line-clamp-2 leading-snug">
+                                                {listing.title}
+                                            </h3>
+
+                                            {/* Price */}
+                                            <p className="text-base font-bold text-primary-600 dark:text-primary-400 mb-2">
+                                                {Number(listing.priceAmount).toLocaleString()} {listing.priceCurrency}
+                                            </p>
+
+                                            {/* Stats */}
+                                            <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500 mb-3">
+                                                <span className="flex items-center gap-1">
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    {listing.viewCount}
+                                                </span>
+                                                <span className="flex items-center gap-1">
+                                                    <Heart className="w-3.5 h-3.5" />
+                                                    {listing.favoriteCount ?? 0}
+                                                </span>
+                                            </div>
+
+                                            {/* Action buttons */}
+                                            <div className="mt-auto space-y-2">
+
+                                                {/* FAOL */}
+                                                {listing.status === 'APPROVED' && (
+                                                    <>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => setDeactivateTarget({ id: listing.id, type: 'sheep' })}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                            >
+                                                                <CheckCircle className="w-3.5 h-3.5" />
+                                                                Yakunlash
+                                                            </button>
+                                                            <Link
+                                                                href={`/qoy-elon/${listing.id}/edit`}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                            >
+                                                                <Edit className="w-3.5 h-3.5" />
+                                                                Tahrirlash
+                                                            </Link>
+                                                        </div>
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/tolov`}
+                                                            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-primary-200 dark:border-primary-800 text-primary-600 dark:text-primary-400 text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition-colors"
+                                                        >
+                                                            <Megaphone className="w-3.5 h-3.5" />
+                                                            Reklama qilish
+                                                        </Link>
+                                                    </>
+                                                )}
+
+                                                {/* KUTAYOTGAN */}
+                                                {listing.status === 'PENDING' && (
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={() => setDeactivateTarget({ id: listing.id, type: 'sheep' })}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <CheckCircle className="w-3.5 h-3.5" />
+                                                            Yakunlash
+                                                        </button>
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                    </div>
+                                                )}
+
+                                                {/* TO'LANMAGAN */}
+                                                {!listing.isPaid && listing.status === 'DRAFT' && (
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/nashr-tolov`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
+                                                        >
+                                                            <CreditCard className="w-3.5 h-3.5" />
+                                                            To&apos;lov qilish
+                                                        </Link>
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/edit`}
+                                                            className="flex items-center justify-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                        </Link>
+                                                    </div>
+                                                )}
+
+                                                {/* NOFAOL */}
+                                                {listing.status === 'ARCHIVED' && (
+                                                    <div className="flex gap-2">
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!confirm("E'lonni o'chirishni xohlaysizmi? Bu amalni qaytarib bo'lmaydi.")) return;
+                                                                try {
+                                                                    await fetch(`${apiBase}/api/my/sheep-listings/${listing.id}/permanent`, { method: 'DELETE', credentials: 'include' });
+                                                                    await fetchSheepListings();
+                                                                } catch (e) { console.error(e); }
+                                                            }}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                            O&apos;chirish
+                                                        </button>
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                    </div>
+                                                )}
+
+                                                {/* RAD ETILGAN */}
+                                                {listing.status === 'REJECTED' && listing.rejectReason && (
+                                                    <div className="mb-2 p-2.5 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                                                        <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-0.5">Rad etish sababi:</p>
+                                                        <p className="text-xs text-red-600 dark:text-red-400">{listing.rejectReason}</p>
+                                                    </div>
+                                                )}
+                                                {listing.status === 'REJECTED' && (
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                        <button
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const res = await fetch(`${apiBase}/api/my/sheep-listings/${listing.id}/submit`, { method: 'POST', credentials: 'include' });
+                                                                    if (res.status === 402) {
+                                                                        const body = await res.json();
+                                                                        router.push(`/qoy-elon/${body.listingId || listing.id}/nashr-tolov`);
+                                                                        return;
+                                                                    }
+                                                                    if (res.ok) await fetchSheepListings();
+                                                                } catch (e) { console.error(e); }
+                                                            }}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
+                                                        >
+                                                            <RefreshCw className="w-3.5 h-3.5" />
+                                                            Faollashtirish
+                                                        </button>
+                                                    </div>
+                                                )}
+
+                                                {/* MUDDATI TUGAGAN */}
+                                                {listing.status === 'EXPIRED' && (
+                                                    <div className="flex gap-2">
+                                                        <Link
+                                                            href={`/qoy-elon/${listing.id}/edit`}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                                                        >
+                                                            <Edit className="w-3.5 h-3.5" />
+                                                            Tahrirlash
+                                                        </Link>
+                                                        <button
+                                                            onClick={() => handleReactivationPayment(listing.id)}
+                                                            disabled={reactivatingId === listing.id || loadingPrice}
+                                                            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 disabled:opacity-60 transition-colors"
+                                                        >
+                                                            {(reactivatingId === listing.id || loadingPrice)
+                                                                ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                                : <RefreshCw className="w-3.5 h-3.5" />}
+                                                            Faollashtirish
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Pagination */}
+                            {totalPages > 1 && (
+                                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                                        Sahifa <span className="font-medium">{currentPage}</span> / <span className="font-medium">{totalPages}</span>
+                                    </p>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                            <ChevronLeft className="w-5 h-5" />
+                                        </button>
+                                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                                            <button key={p} onClick={() => setCurrentPage(p)} className={`w-10 h-10 rounded-lg flex items-center justify-center font-medium transition-colors ${p === currentPage ? 'bg-primary-600 text-white' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600'}`}>{p}</button>
+                                        ))}
+                                        <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="w-10 h-10 rounded-lg flex items-center justify-center bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                            <ChevronRight className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="text-center py-16 sm:py-20 bg-white dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600">
+                            <div className="text-6xl mb-4">🐑</div>
+                            <h3 className="text-xl font-medium text-slate-900 dark:text-slate-100 mb-2">Qo&apos;y/Echki e&apos;lonlar yo&apos;q</h3>
+                            <p className="text-slate-500 dark:text-slate-400 mb-6">Hali hech qanday e&apos;lon yaratmadingiz</p>
+                            <Link href="/qoy-elon/yaratish" className="btn btn-primary">
+                                <Plus className="w-5 h-5" /> E&apos;lon yaratish
+                            </Link>
+                        </div>
+                    )
                 ) : (
                     /* ── PRODUCTS CONTENT ── */
                     filteredProducts.length > 0 ? (
@@ -988,7 +1382,7 @@ function MyListingsPageContent() {
             {deactivateListingId && (
                 <div
                     className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                    onClick={() => setDeactivateListingId(null)}
+                    onClick={() => setDeactivateTarget(null)}
                 >
                     <div
                         className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-2xl"
@@ -1008,7 +1402,7 @@ function MyListingsPageContent() {
                                 className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border-2 border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 font-medium hover:border-green-400 dark:hover:border-green-600 transition-colors text-left"
                             >
                                 <span className="text-xl leading-none">✅</span>
-                                <span>Ha, Otbozor&apos;da sotildi</span>
+                                <span>Ha, {deactivateTarget?.type === 'sheep' ? 'Chorva' : 'Otbozor'}&apos;da sotildi</span>
                             </button>
                             <button
                                 onClick={() => handleDeactivate(deactivateListingId, 'OTHER')}
@@ -1018,7 +1412,7 @@ function MyListingsPageContent() {
                                 <span>Yo&apos;q, boshqa joyda sotildi</span>
                             </button>
                             <button
-                                onClick={() => setDeactivateListingId(null)}
+                                onClick={() => setDeactivateTarget(null)}
                                 className="w-full px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                             >
                                 Yo&apos;q (bekor qilish)

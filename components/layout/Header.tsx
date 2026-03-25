@@ -10,9 +10,9 @@ import { usePathname } from 'next/navigation';
 import { createPortal } from 'react-dom';
 
 const navigation = [
-    { name: 'Bozor', href: '/bozor' },
+    { name: 'Mol bozori', href: '/bozor' },
+    { name: "Qo'y & Echki", href: '/qoy-bozor' },
     { name: 'Mahsulotlar', href: '/mahsulotlar' },
-    { name: "Ko'pkari", href: '/kopkari' },
     { name: 'Blog', href: '/blog' },
     { name: 'Aloqa', href: '/aloqa' },
 ];
@@ -180,7 +180,7 @@ export function Header() {
                     <div className="flex h-16 items-center justify-between">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-                            <Image src="/logo.png" alt="Otbozor" width={48} height={48} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
+                            <Image src="/logo.png" alt="Chorvabozor" width={48} height={48} className="w-10 h-10 sm:w-12 sm:h-12 object-contain" />
                             <span className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-100">
                                 Ot<span className="text-primary-600 dark:text-primary-400">bozor</span>
                             </span>

@@ -577,3 +577,154 @@ export async function getProductPaymentStatus(paymentId: string): Promise<{
     if (response.success && response.data) return response.data;
     throw new Error(response.message || 'Payment not found');
 }
+
+// ============================================
+// SHEEP & GOAT LISTINGS
+// ============================================
+
+export interface SheepListing {
+    id: string;
+    title: string;
+    slug: string;
+    description?: string;
+    animalType: 'QOY' | 'ECHKI';
+    purpose?: string;
+    gender?: string;
+    ageMonths?: number;
+    priceAmount: number;
+    priceCurrency: 'UZS' | 'USD';
+    hasVaccine?: boolean;
+    hasVideo: boolean;
+    isTop?: boolean;
+    isPaid?: boolean;
+    isPremium?: boolean;
+    viewCount: number;
+    favoriteCount: number;
+    status: string;
+    rejectReason?: string;
+    expiresAt?: string;
+    boostExpiresAt?: string;
+    publishedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    region: { nameUz: string; slug: string };
+    district?: { nameUz: string; slug: string };
+    breed?: { name: string; slug: string };
+    user: {
+        id: string;
+        displayName: string;
+        telegramUsername?: string;
+        phone?: string;
+        isVerified: boolean;
+        avatarUrl?: string;
+    };
+    media: Array<{ id?: string; url: string; thumbUrl?: string; type: 'IMAGE' | 'VIDEO' }>;
+}
+
+export interface SheepListingsFilter {
+    animalType?: string;
+    regionId?: string;
+    districtId?: string;
+    breedId?: string;
+    purpose?: string;
+    gender?: string;
+    priceMin?: number;
+    priceMax?: number;
+    q?: string;
+    sort?: string;
+    page?: number;
+    limit?: number;
+}
+
+export interface SheepBreed {
+    id: string;
+    name: string;
+    slug: string;
+    animalType: string;
+}
+
+export async function getSheepListings(filter: SheepListingsFilter = {}): Promise<{ data: SheepListing[]; pagination: any }> {
+    const response = await apiFetch<AuthResponse<any>>('/api/sheep-listings', { params: filter as any, next: { revalidate: 60 } } as any);
+    if (response.success && response.data) return response.data;
+    return { data: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } };
+}
+
+export async function getSheepListing(idOrSlug: string): Promise<SheepListing> {
+    const response = await apiFetch<AuthResponse<SheepListing>>(`/api/sheep-listings/${idOrSlug}`, { next: { revalidate: 60 } } as any);
+    if (response.success && response.data) return response.data;
+    throw new Error('Listing not found');
+}
+
+export async function getSheepBreeds(animalType?: string): Promise<SheepBreed[]> {
+    const response = await apiFetch<AuthResponse<SheepBreed[]>>('/api/sheep-breeds', {
+        params: animalType ? { animalType } : undefined,
+        next: { revalidate: 3600 },
+    } as any);
+    if (response.success && response.data) return response.data;
+    return [];
+}
+
+export async function createSheepListingDraft(data: any): Promise<SheepListing> {
+    const response = await apiFetch<AuthResponse<SheepListing>>('/api/my/sheep-listings', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to create sheep listing');
+}
+
+export async function updateSheepListingDraft(id: string, data: any): Promise<SheepListing> {
+    const response = await apiFetch<AuthResponse<SheepListing>>(`/api/my/sheep-listings/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to update sheep listing');
+}
+
+export async function submitSheepListingForReview(id: string): Promise<SheepListing> {
+    const response = await apiFetch<AuthResponse<SheepListing>>(`/api/my/sheep-listings/${id}/submit`, {
+        method: 'POST',
+    });
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Failed to submit sheep listing');
+}
+
+export async function getMySheepListings(status?: string): Promise<SheepListing[]> {
+    const params = status ? `?status=${status}` : '';
+    const response = await apiFetch<AuthResponse<SheepListing[]>>(`/api/my/sheep-listings${params}`);
+    if (response.success && response.data) return response.data;
+    return [];
+}
+
+export async function archiveSheepListing(id: string, saleSource?: string): Promise<void> {
+    await apiFetch<AuthResponse<void>>(`/api/my/sheep-listings/${id}`, {
+        method: 'DELETE',
+        body: saleSource ? JSON.stringify({ saleSource }) : undefined,
+    });
+}
+
+export async function deleteSheepListingPermanent(id: string): Promise<void> {
+    await apiFetch<AuthResponse<void>>(`/api/my/sheep-listings/${id}/permanent`, {
+        method: 'DELETE',
+    });
+}
+
+export async function getMySheepListingById(id: string): Promise<SheepListing> {
+    const response = await apiFetch<AuthResponse<SheepListing>>(`/api/my/sheep-listings/${id}`);
+    if (response.success && response.data) return response.data;
+    throw new Error(response.message || 'Listing not found');
+}
+
+export async function attachMediaToSheepListing(
+    listingId: string,
+    media: Array<{ url: string; type: 'IMAGE' | 'VIDEO'; sortOrder: number }>
+): Promise<void> {
+    const response = await apiFetch<AuthResponse<void>>('/api/media/attach', {
+        method: 'POST',
+        body: JSON.stringify({ sheepListingId: listingId, media }),
+    });
+    if (!response.success) {
+        throw new Error(response.message || 'Failed to attach media');
+    }
+}

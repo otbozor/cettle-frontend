@@ -13,10 +13,10 @@ export function HeroSection() {
                     <div>
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-full text-sm text-primary-700 dark:text-primary-300 font-medium mb-5">
                             <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse" />
-                            O'zbekistondagi #1 raqamli ot savdo platformasi
+                            O'zbekistondagi #1 raqamli chorva savdo platformasi
                         </div>
                         <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold text-slate-900 dark:text-white leading-tight mb-6">
-                            Ot savdosi uchun{' '}
+                            Chorva savdosi uchun{' '}
                             <span className="text-primary-600 dark:text-primary-400">yagona onlayn</span>{' '}
                             platforma
                         </h1>
@@ -31,7 +31,7 @@ export function HeroSection() {
                                 className="inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold text-base transition-colors shadow-lg shadow-primary-500/20"
                             >
                                 <Search className="w-5 h-5" />
-                                Ot qidirish
+                                Mol qidirish
                             </Link>
                             <Link
                                 href="/elon/yaratish"
@@ -45,7 +45,7 @@ export function HeroSection() {
                         <div className="flex items-center gap-6 flex-wrap">
                             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                                 <CheckCircle2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                                Tekshirilgan otlar
+                                Tekshirilgan mollar
                             </div>
                             <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                                 <CheckCircle2 className="w-4 h-4 text-primary-600 dark:text-primary-400" />
@@ -54,11 +54,11 @@ export function HeroSection() {
                         </div>
                     </div>
 
-                    {/* Right - Horse image */}
+                    {/* Right - Cattle image */}
                     <div className="hidden lg:flex justify-center">
                         <Image
                             src="/group.jpg"
-                            alt="Ot"
+                            alt="Mol"
                             width={600}
                             height={450}
                             className="w-full max-w-md rounded-2xl object-contain"

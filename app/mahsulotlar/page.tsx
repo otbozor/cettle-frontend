@@ -350,8 +350,8 @@ export default function ProductsPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">Ot uchun mahsulotlar</h1>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Sifatli egar-jabduqlar, ozuqa va aksessuarlar</p>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-1">Mahsulotlar</h1>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Qo'y, echki va qoramol uchun ozuqa, dori va jihozlar</p>
                 </div>
                 <Link
                     href="/mahsulot/yaratish"
